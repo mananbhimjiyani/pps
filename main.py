@@ -1,3 +1,4 @@
+from tkinter import ttk
 from tkinter import *
 import mysql.connector
 import time
@@ -35,12 +36,33 @@ def userexsist():
     Label(err, text="").pack()
     Button(err, text="Ok", bg="grey", width=8, height=1, command=error_destroy).pack()
 
+
 def patientexist():
     global err
     err = Toplevel(root1)
     err.title("Error")
     err.geometry("200x100")
     Label(err, text="Patient Already Exist", fg="red", font="bold").pack()
+    Label(err, text="").pack()
+    Button(err, text="Ok", bg="grey", width=8, height=1, command=error_destroy).pack()
+
+
+def doctorexists():
+    global err
+    err = Toplevel(root1)
+    err.title("Error")
+    err.geometry("200x100")
+    Label(err, text="Doctor Already Exist", fg="red", font="bold").pack()
+    Label(err, text="").pack()
+    Button(err, text="Ok", bg="grey", width=8, height=1, command=error_destroy).pack()
+
+
+def workerexists():
+    global err
+    err = Toplevel(root1)
+    err.title("Error")
+    err.geometry("200x100")
+    Label(err, text="Worker Already Exist", fg="red", font="bold").pack()
     Label(err, text="").pack()
     Button(err, text="Ok", bg="grey", width=8, height=1, command=error_destroy).pack()
 
@@ -126,6 +148,16 @@ def fail_destroy():
     fail.destroy()
 
 
+def failed():
+    global fail
+    fail = Toplevel(root2)
+    fail.title("Invalid")
+    fail.geometry("200x100")
+    Label(fail, text="Invalid credentials...", fg="red", font="bold").pack()
+    Label(fail, text="").pack()
+    Button(fail, text="Ok", bg="grey", width=8, height=1, command=fail_destroy).pack()
+
+
 def logged():
     global logg
     logg = Toplevel(root2)
@@ -136,12 +168,14 @@ def logged():
     Label(logg, text="").pack()
     Button(logg, text="Registering Patient", bg="grey", width=15, height=1, command=patient_registration).pack()
     Label(logg, text="").pack()
-    Button(logg, text="Registering Doctor", bg="grey", width=15, height=1, command=Doctor_Registration).pack()
+    Button(logg, text="Registering Doctor", bg="grey", width=15, height=1, command=doctor_Registration).pack()
+    Label(logg, text="").pack()
+    Button(logg, text="Total Patient Details", bg="grey", width=15, height=1, command=total_patient_details).pack()
     Label(logg, text="").pack()
     Button(logg, text="Log-Out", bg="grey", width=8, height=1, command=logg_destroy).pack()
 
 
-def patient():
+def Patient_Register():
     name_info = p_name.get()
     age_info = p_age.get()
     problem_info = p_problem.get()
@@ -156,8 +190,10 @@ def patient():
     elif phone_info == "":
         error()
     else:
-        sql="SELECT p_name FROM patient_details"
+        sql = "SELECT p_name FROM patient_details"
         if phone_info == sql:
+            patientexist()
+        else:
             sql = "insert into patient_details values(%s,%s,%s,%s)"
             t = (name_info, age_info, problem_info, phone_info)
             mycur.execute(sql, t)
@@ -165,8 +201,6 @@ def patient():
             Label(root1, text="").pack()
             time.sleep(0.50)
             success()
-        else:
-            patientexist()
 
 
 def patient_registration():
@@ -193,33 +227,135 @@ def patient_registration():
     Label(root1, text="Enter Phone number:").pack()
     Entry(root1, textvariable=p_phone, ).pack()
     Label(root1, text="").pack()
-    Button(root1, text="Log-In", bg="red", command=patient).pack()
+    Button(root1, text="Log-In", bg="red", command=Patient_Register).pack()
     Label(root1, text="")
 
 
-def Doctor_Registration():
-    global logg
-    logg = Toplevel(root2)
-    logg.title("Logged IN")
-    logg.geometry("300x300")
-    Label(logg, text="Welcome {} ".format(username_varify.get()), fg="green", font="bold").pack()
-    Label(logg, text="HOSPITAL MANAGEMENT SYSTEM", font="bold").pack()
-    Label(logg, text="").pack()
-    Button(logg, text="Registering Patient", bg="grey", width=15, height=1, command=patient_registration).pack()
-    Label(logg, text="").pack()
-    Button(logg, text="Registering Doctor", bg="grey", width=15, height=1, command=Doctor_Registration).pack()
-    Label(logg, text="").pack()
-    Button(logg, text="Log-Out", bg="grey", width=8, height=1, command=logg_destroy).pack()
+def Doctor_Register():
+    name_info = d_name.get()
+    age_info = d_age.get()
+    department_info = d_department.get()
+    phone_info = d_phone.get()
+
+    if name_info == "":
+        error()
+    elif age_info == "":
+        error()
+    elif department_info == "":
+        error()
+    elif phone_info == "":
+        error()
+    else:
+        sql = "SELECT p_name FROM doctor_details"
+        if phone_info == sql:
+            doctorexists()
+        else:
+            sql = "insert into doctor_details values(%s,%s,%s,%s)"
+            t = (name_info, age_info, department_info, phone_info)
+            mycur.execute(sql, t)
+            db.commit()
+            Label(root1, text="").pack()
+            time.sleep(0.50)
+            success()
 
 
-def failed():
-    global fail
-    fail = Toplevel(root2)
-    fail.title("Invalid")
-    fail.geometry("200x100")
-    Label(fail, text="Invalid credentials...", fg="red", font="bold").pack()
-    Label(fail, text="").pack()
-    Button(fail, text="Ok", bg="grey", width=8, height=1, command=fail_destroy).pack()
+def doctor_Registration():
+    global root1
+    global d_name, d_age, d_department, d_phone
+    root1 = Toplevel(root)
+    root1.title("Doctor Registration")
+    root1.geometry("500x500")
+    Label(root1, text="Doctor Registration", bg="grey", fg="black", font="bold", width=300).pack()
+    d_name = StringVar()
+    d_age = StringVar()
+    d_department = StringVar()
+    d_phone = StringVar()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Doctor Name:", font="bold").pack()
+    Entry(root1, textvariable=d_name).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Age:").pack()
+    Entry(root1, textvariable=d_age, ).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter the Department:").pack()
+    Entry(root1, textvariable=d_department, ).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Phone number:").pack()
+    Entry(root1, textvariable=d_phone, ).pack()
+    Label(root1, text="").pack()
+    Button(root1, text="Save", bg="red", command=Doctor_Register).pack()
+    Label(root1, text="")
+
+
+def Worker_Register():
+    name_info = w_name.get()
+    age_info = w_age.get()
+    department_info = w_workname.get()
+    phone_info = w_phone.get()
+
+    if name_info == "":
+        error()
+    elif age_info == "":
+        error()
+    elif department_info == "":
+        error()
+    elif phone_info == "":
+        error()
+    else:
+        sql = "SELECT w_phone FROM worker_details"
+        if phone_info == sql:
+            workerexists()
+        else:
+
+            sql = "insert into worker_details values(%s,%s,%s,%s)"
+            t = (name_info, age_info, department_info, phone_info)
+            mycur.execute(sql, t)
+            db.commit()
+            Label(root1, text="").pack()
+            time.sleep(0.50)
+            success()
+
+
+def worker_Registration():
+    global root1
+    global w_name, w_age, w_workname, w_phone
+    root1 = Toplevel(root)
+    root1.title("Worker Registration")
+    root1.geometry("500x500")
+    Label(root1, text="Worker Registration", bg="grey", fg="black", font="bold", width=300).pack()
+    w_name = StringVar()
+    w_age = StringVar()
+    w_workname = StringVar()
+    w_phone = StringVar()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Worker Name:", font="bold").pack()
+    Entry(root1, textvariable=w_name).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Age:", font="bold").pack()
+    Entry(root1, textvariable=w_age).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter type of work:").pack()
+    Entry(root1, textvariable=w_workname, ).pack()
+    Label(root1, text="").pack()
+    Label(root1, text="Enter Phone number:").pack()
+    Entry(root1, textvariable=w_phone, ).pack()
+    Label(root1, text="").pack()
+    Button(root1, text="Save", bg="red", command=Worker_Register).pack()
+    Label(root1, text="")
+
+
+def total_patient_details():
+    global root1
+    root1 = Toplevel(root)
+    root1.title("Patient Details")
+    root1.geometry("500x500")
+    r_set = mycur.execute("SELECT * FROM patient_details limit 0,10")
+    result = mycur.fetchall()
+    i = 0
+    for student in result:
+        for j in range(len(student)):
+            e = Label(root1,width=10, text=student[j],borderwidth=2,relief='ridge',anchor="w").pack()
+        i = i + 1
 
 
 def login_varify():
